@@ -199,7 +199,7 @@ async def zakaz_sharchi_tanlash(call: CallbackQuery, state: FSMContext):
         f"🟠 Orange logotip: {data.get('orange', 0)} dona\n"
         f"🟡 Sariq logotip: {data.get('sariq', 0)} dona"
     )
-    await call.bot.send_message(worker["tg_id"], text, reply_markup=kb.qabul_rad_kb(order_id))
+    await call.bot.send_message(worker["tg_id"], text, reply_markup=kb.qabul_rad_kb(order_id), disable_notification=False)
 
     # Notify xodim
     from config import XODIM_ID
@@ -216,7 +216,7 @@ async def zakaz_sharchi_tanlash(call: CallbackQuery, state: FSMContext):
         f"👤 Sharchi: {worker['ism']}"
     )
     try:
-        await call.bot.send_message(XODIM_ID, text_xodim)
+        await call.bot.send_message(XODIM_ID, text_xodim, disable_notification=False)
     except Exception:
         pass
 

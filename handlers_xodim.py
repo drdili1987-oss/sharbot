@@ -148,7 +148,7 @@ async def _xodim_bajarildi_yakunlash(message: Message, state: FSMContext, bot):
         f"👤 Sharchi: {wname}\n"
         f"💰 Hisoblangan summa: {summa:,.0f} so'm".replace(",", " ")
     )
-    await bot.send_message(ADMIN_ID, text_admin, reply_markup=kb.tasdiqlash_kb(execution_id))
+    await bot.send_message(ADMIN_ID, text_admin, reply_markup=kb.tasdiqlash_kb(execution_id), disable_notification=False)
     
     await message.answer(
         "✅ Buyurtma bajarildi deb belgilandi. Tafsilotlar adminga tasdiqlash uchun yuborildi.\n\n"
@@ -208,12 +208,14 @@ async def xodim_logo_photo(message: Message, state: FSMContext):
         await message.bot.send_photo(
             ADMIN_ID,
             photo=arka_file_id,
-            caption=f"📷 Xodim dan hisobot rasmi (Arka)\n🏪 Magazin: {magazin}\n👤 Sharchi: {wname}"
+            caption=f"📷 Xodim dan hisobot rasmi (Arka)\n🏪 Magazin: {magazin}\n👤 Sharchi: {wname}",
+            disable_notification=False
         )
         await message.bot.send_photo(
             ADMIN_ID,
             photo=logo_file_id,
-            caption=f"📷 Xodim dan hisobot rasmi (Logo sharlar)\n🏪 Magazin: {magazin}\n👤 Sharchi: {wname}"
+            caption=f"📷 Xodim dan hisobot rasmi (Logo sharlar)\n🏪 Magazin: {magazin}\n👤 Sharchi: {wname}",
+            disable_notification=False
         )
     except Exception as e:
         logger.error(f"Failed to forward photos to Admin: {e}")
@@ -224,12 +226,14 @@ async def xodim_logo_photo(message: Message, state: FSMContext):
             await message.bot.send_photo(
                 worker["tg_id"],
                 photo=arka_file_id,
-                caption=f"📷 Xodim dan buyurtma bezak rasmi (Arka)\n🏪 Magazin: {magazin}"
+                caption=f"📷 Xodim dan buyurtma bezak rasmi (Arka)\n🏪 Magazin: {magazin}",
+                disable_notification=False
             )
             await message.bot.send_photo(
                 worker["tg_id"],
                 photo=logo_file_id,
-                caption=f"📷 Xodim dan buyurtma bezak rasmi (Logo sharlar)\n🏪 Magazin: {magazin}"
+                caption=f"📷 Xodim dan buyurtma bezak rasmi (Logo sharlar)\n🏪 Magazin: {magazin}",
+                disable_notification=False
             )
         except Exception as e:
             logger.error(f"Failed to forward photos to Worker: {e}")

@@ -179,7 +179,7 @@ async def _bajarildi_yakunlash(message: Message, state: FSMContext, bot):
         f"🚗 Transport: {data['km']} km\n"
         f"💰 Hisoblangan summa: {summa:,.0f} so'm".replace(",", " ")
     )
-    await bot.send_message(ADMIN_ID, text, reply_markup=kb.tasdiqlash_kb(execution_id))
+    await bot.send_message(ADMIN_ID, text, reply_markup=kb.tasdiqlash_kb(execution_id), disable_notification=False)
 
     # Notify xodim
     from config import XODIM_ID
@@ -192,7 +192,7 @@ async def _bajarildi_yakunlash(message: Message, state: FSMContext, bot):
         f"Iltimos, bezatilgan do'kon rasmlarini (arka va logotipli sharlar rasmini) yuklang:"
     )
     try:
-        await bot.send_message(XODIM_ID, text_xodim, reply_markup=kb.xodim_upload_kb(order['id']))
+        await bot.send_message(XODIM_ID, text_xodim, reply_markup=kb.xodim_upload_kb(order['id']), disable_notification=False)
     except Exception:
         pass
 
