@@ -30,3 +30,8 @@ class AddSharchiForm(StatesGroup):
 
 class OylikHisobotForm(StatesGroup):
     oy = State()
+
+
+class XodimPhotoForm(StatesGroup):
+    arka_photo = State()
+    logo_photo = State()

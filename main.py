@@ -16,6 +16,7 @@ from config import BOT_TOKEN, ADMIN_ID
 from database import init_db
 import handlers_admin
 import handlers_worker
+import handlers_xodim
 from scheduler import daily_scheduler
 
 
@@ -56,6 +57,7 @@ async def main():
 
     dp.include_router(handlers_admin.router)
     dp.include_router(handlers_worker.router)
+    dp.include_router(handlers_xodim.router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     

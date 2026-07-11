@@ -150,3 +150,13 @@ def cancel_kb():
         keyboard=[[KeyboardButton(text="❌ Bosh menyu")]],
         resize_keyboard=True,
     )
+
+
+def xodim_upload_kb(order_id: int):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="📷 Rasmlarni yuklash", callback_data=f"xodim_upload_{order_id}"),
+            ]
+        ]
+    )

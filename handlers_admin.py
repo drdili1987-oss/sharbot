@@ -201,6 +201,25 @@ async def zakaz_sharchi_tanlash(call: CallbackQuery, state: FSMContext):
     )
     await call.bot.send_message(worker["tg_id"], text, reply_markup=kb.qabul_rad_kb(order_id))
 
+    # Notify xodim
+    from config import XODIM_ID
+    text_xodim = (
+        f"🔔 **Yangi buyurtma yaratildi!**\n\n"
+        f"🏪 Magazin: {data['magazin_kodi']}\n"
+        f"📅 Sana: {data['sana']}\n"
+        f"📍 Manzil: {data['manzil']}\n"
+        f"📐 Taxminiy arka: {data.get('arka_metr', 0)} metr\n"
+        f"🔴 Qizil logotip: {data.get('qizil', 0)} dona\n"
+        f"⚪ Oq logotip: {data.get('oq', 0)} dona\n"
+        f"🟠 Orange logotip: {data.get('orange', 0)} dona\n"
+        f"🟡 Sariq logotip: {data.get('sariq', 0)} dona\n"
+        f"👤 Sharchi: {worker['ism']}"
+    )
+    try:
+        await call.bot.send_message(XODIM_ID, text_xodim)
+    except Exception:
+        pass
+
     await call.message.edit_text(f"✅ Zakaz #{order_id} {worker['ism']} ga yuborildi.")
     await state.clear()
     await call.answer()

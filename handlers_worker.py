@@ -180,6 +180,22 @@ async def _bajarildi_yakunlash(message: Message, state: FSMContext, bot):
         f"💰 Hisoblangan summa: {summa:,.0f} so'm".replace(",", " ")
     )
     await bot.send_message(ADMIN_ID, text, reply_markup=kb.tasdiqlash_kb(execution_id))
+
+    # Notify xodim
+    from config import XODIM_ID
+    text_xodim = (
+        f"🔔 **Buyurtma bajarildi!**\n\n"
+        f"🏪 Magazin: {order['magazin_kodi']}\n"
+        f"📏 Arka: {data['metr']} metr\n"
+        f"🎈 Logotip: {data['logotip']} dona\n"
+        f"🚗 Transport: {data['km']} km\n\n"
+        f"Iltimos, bezatilgan do'kon rasmlarini (arka va logotipli sharlar rasmini) yuklang:"
+    )
+    try:
+        await bot.send_message(XODIM_ID, text_xodim, reply_markup=kb.xodim_upload_kb(order['id']))
+    except Exception:
+        pass
+
     await message.answer("✅ Ma'lumotlar adminga yuborildi. Tasdiqlanishini kuting.")
     await state.clear()
 
