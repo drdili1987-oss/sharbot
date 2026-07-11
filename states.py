@@ -35,3 +35,10 @@ class OylikHisobotForm(StatesGroup):
 class XodimPhotoForm(StatesGroup):
     arka_photo = State()
     logo_photo = State()
+
+
+class XodimBajarildiForm(StatesGroup):
+    metr = State()
+    logotip = State()
+    uzoqmi = State()
+    km = State()

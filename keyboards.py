@@ -160,3 +160,29 @@ def xodim_upload_kb(order_id: int):
             ]
         ]
     )
+
+
+def xodim_menu_kb():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="📋 Aktiv buyurtmalar")],
+        ],
+        resize_keyboard=True,
+    )
+
+
+def xodim_orders_inline_kb(orders):
+    keyboard = []
+    for o in orders:
+        keyboard.append([InlineKeyboardButton(text=f"📦 #{o['id']} - {o['magazin_kodi']}", callback_data=f"x_ord_{o['id']}")])
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+def xodim_order_detail_kb(order_id: int):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="✅ Bajarildi", callback_data=f"x_baj_{order_id}"),
+            ]
+        ]
+    )
