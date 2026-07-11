@@ -6,12 +6,12 @@ from aiogram.fsm.context import FSMContext
 import database as db
 import keyboards as kb
 from states import BajarildiForm
-from config import ADMIN_ID, ARKA_NARXI_METR, LOGOTIP_NARXI_DONA, TRANSPORT_NARXI_KM
+from config import ADMIN_ID, XODIM_ID, ARKA_NARXI_METR, LOGOTIP_NARXI_DONA, TRANSPORT_NARXI_KM
 
 router = Router()
 
 
-@router.message(CommandStart(), F.from_user.id != ADMIN_ID)
+@router.message(CommandStart(), F.from_user.id != ADMIN_ID, F.from_user.id != XODIM_ID)
 async def cmd_start_worker(message: Message):
     worker = await db.get_worker_by_tgid(message.from_user.id)
     if not worker:
