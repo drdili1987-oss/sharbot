@@ -54,6 +54,14 @@ CREATE TABLE IF NOT EXISTS cashflow (
     izoh TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS admin_debts (
+    id SERIAL PRIMARY KEY,
+    izoh TEXT,
+    summa REAL,
+    tolangan INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 async def init_db():
@@ -61,6 +69,33 @@ async def init_db():
         async with conn.cursor() as cur:
             await cur.execute(SCHEMA)
         await conn.commit()
+    # Dilfuza (sharchi) — faqat yo'q bo'lsa qo'shiladi
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory=dict_row) as conn:
+        async with conn.cursor() as cur:
+            # Dilfuzani sharchi sifatida qo'shish
+            await cur.execute(
+                "INSERT INTO workers (tg_id, ism, active) VALUES (%s, %s, 1) "
+                "ON CONFLICT (tg_id) DO UPDATE SET ism = EXCLUDED.ism, active = 1",
+                (2098476593, "Dilfuza")
+            )
+            # Dilfuzaning worker id ini olish
+            await cur.execute("SELECT id FROM workers WHERE tg_id = %s", (2098476593,))
+            row = await cur.fetchone()
+            if row:
+                worker_id = row["id"]
+                # 8 610 000 so'm boshlang'ich qarz — faqat hech qarz yo'q bo'lsa yoziladi
+                await cur.execute(
+                    "SELECT COUNT(*) as cnt FROM debts WHERE worker_id = %s",
+                    (worker_id,)
+                )
+                cnt_row = await cur.fetchone()
+                if cnt_row and list(cnt_row.values())[0] == 0:
+                    await cur.execute(
+                        "INSERT INTO debts (worker_id, order_id, summa) VALUES (%s, NULL, %s)",
+                        (worker_id, 8610000.0)
+                    )
+        await conn.commit()
+
 
 # ---------- WORKERS ----------
 
@@ -265,3 +300,34 @@ async def monthly_report(year_month: str):
             cash_summary = {r["turi"]: r["jami"] for r in rows2}
 
             return exec_summary, cash_summary
+
+# ---------- ADMIN QARZI ----------
+
+async def add_admin_debt(summa: float, izoh: str = ""):
+    """Admin qarzini qo'shish (masalan tashqi to'lov majburiyati)."""
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                "INSERT INTO admin_debts (summa, izoh) VALUES (%s, %s)",
+                (summa, izoh),
+            )
+        await conn.commit()
+
+async def get_admin_total_debt() -> float:
+    """To'lanmagan admin qarzlari jamini qaytaradi."""
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory=dict_row) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                "SELECT COALESCE(SUM(summa), 0) FROM admin_debts WHERE tolangan = 0"
+            )
+            row = await cur.fetchone()
+            return list(row.values())[0] if row else 0.0
+
+async def mark_admin_debts_paid():
+    """Barcha to'lanmagan admin qarzlarini to'langan deb belgilaydi."""
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                "UPDATE admin_debts SET tolangan = 1 WHERE tolangan = 0"
+            )
+        await conn.commit()

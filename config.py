@@ -15,4 +15,4 @@ TRANSPORT_NARXI_KM = 2_000      # 1 km transport narxi
 
 DB_PATH = os.getenv("DB_PATH", "sharbot.db")
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_ODeoYbtCf5S7@ep-summer-bar-adrqqqpe-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
-XODIM_ID = int(os.getenv("XODIM_ID", "261261387"))
+XODIM_ID = int(os.getenv("XODIM_ID", "522760123"))

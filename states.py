@@ -42,3 +42,8 @@ class XodimBajarildiForm(StatesGroup):
     logotip = State()
     uzoqmi = State()
     km = State()
+
+
+class AdminQarzForm(StatesGroup):
+    summa = State()
+    izoh = State()

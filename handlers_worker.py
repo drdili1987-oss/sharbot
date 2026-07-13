@@ -66,13 +66,13 @@ async def worker_orders(message: Message):
     await message.answer("Buyurtmalaringiz:", reply_markup=kb.worker_orders_kb(orders))
 
 
-@router.message(F.text == "📊 Hisob-kitob", F.from_user.id != ADMIN_ID)
+@router.message(F.text == "📊 Hisob-kitob", F.from_user.id != ADMIN_ID, F.from_user.id != XODIM_ID)
 async def worker_hisob_kitob(message: Message):
     worker = await db.get_worker_by_tgid(message.from_user.id)
     if not worker:
         await message.answer("Siz ro'yxatdan o'tmagansiz.")
         return
-    
+
     unpaid_debt = await db.get_worker_unpaid_debt(worker["id"])
     text = (
         f"📊 Hisob-kitob:\n\n"

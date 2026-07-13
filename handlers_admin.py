@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 
 import database as db
 import keyboards as kb
-from states import YangiZakaz, AddSharchiForm, TolovForm, OylikHisobotForm
+from states import YangiZakaz, AddSharchiForm, TolovForm, OylikHisobotForm, AdminQarzForm
 from config import ADMIN_ID, ARKA_NARXI_METR, LOGOTIP_NARXI_DONA, TRANSPORT_NARXI_KM
 
 router = Router()
@@ -270,6 +270,65 @@ async def tasdiqlash_callback(call: CallbackQuery):
         f"Sizga {execution['summa']:,.0f} so'm qarz yozildi.".replace(",", " "),
     )
     await call.answer("Tasdiqlandi")
+
+
+# ---------------- ADMIN HISOB-KITOB ----------------
+
+@router.message(F.text == "📊 Hisob-kitob", F.from_user.id == ADMIN_ID)
+async def admin_hisob_kitob(message: Message):
+    qarz = await db.get_admin_total_debt()
+    text = (
+        "📊 Sizning hisob-kitobingiz:\n\n"
+        f"💸 Admin siz (Dilfuza) dan: {qarz:,.0f} so'm qarz"
+    ).replace(",", " ")
+    await message.answer(text, reply_markup=kb.admin_hisob_kitob_kb())
+
+
+@router.callback_query(F.data == "admin_qarz_qoshish")
+async def admin_qarz_qoshish_start(call: CallbackQuery, state: FSMContext):
+    if not is_admin(call):
+        await call.answer()
+        return
+    await call.message.answer("Yangi qarz summasini kiriting (so'mda):", reply_markup=kb.cancel_kb())
+    await state.set_state(AdminQarzForm.summa)
+    await call.answer()
+
+
+@router.message(AdminQarzForm.summa, F.from_user.id == ADMIN_ID)
+async def admin_qarz_summa(message: Message, state: FSMContext):
+    text = message.text.strip().replace(" ", "").replace(",", "")
+    if not text.isdigit():
+        await message.answer("Iltimos, faqat raqam kiriting.")
+        return
+    summa = float(text)
+    await state.update_data(summa=summa)
+    await message.answer("Qarz izohi (masalan: 'Ombor', 'Mahsulot xaridi'). Izohsiz bo'lsa, '-' yuboring:", reply_markup=kb.cancel_kb())
+    await state.set_state(AdminQarzForm.izoh)
+
+
+@router.message(AdminQarzForm.izoh, F.from_user.id == ADMIN_ID)
+async def admin_qarz_izoh(message: Message, state: FSMContext):
+    izoh = message.text.strip()
+    data = await state.get_data()
+    summa = data["summa"]
+    await db.add_admin_debt(summa, izoh if izoh != "-" else "")
+    qarz_jami = await db.get_admin_total_debt()
+    await message.answer(
+        f"✅ {summa:,.0f} so'm qarz qo'shildi.\n"
+        f"💸 Jami qarz: {qarz_jami:,.0f} so'm".replace(",", " "),
+        reply_markup=kb.admin_menu_kb()
+    )
+    await state.clear()
+
+
+@router.callback_query(F.data == "admin_qarz_tozalash")
+async def admin_qarz_tozalash(call: CallbackQuery):
+    if not is_admin(call):
+        await call.answer()
+        return
+    await db.mark_admin_debts_paid()
+    await call.message.edit_text("✅ Barcha qarzlar to'landi deb belgilandi. Balans: 0 so'm.")
+    await call.answer("Tozalandi")
 
 
 # ---------------- HISOBOT ----------------

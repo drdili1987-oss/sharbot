@@ -105,6 +105,15 @@ def worker_debt_paid_kb(worker_id: int):
     )
 
 
+def admin_hisob_kitob_kb():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="➕ Qarz qo'shish", callback_data="admin_qarz_qoshish")],
+            [InlineKeyboardButton(text="✅ Qarz to'landi (tozalash)", callback_data="admin_qarz_tozalash")],
+        ]
+    )
+
+
 def logotip_colors_kb():
     return InlineKeyboardMarkup(
         inline_keyboard=[
