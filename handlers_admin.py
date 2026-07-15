@@ -229,9 +229,10 @@ async def zakaz_sharchi_tanlash(call: CallbackQuery, state: FSMContext):
 
 @router.message(F.text == "📋 Buyurtmalar", F.from_user.id == ADMIN_ID)
 async def list_orders(message: Message):
-    orders = await db.list_orders_by_status(limit=15)
+    # Faqat bajarilmagan (faol) buyurtmalarni olish
+    orders = await db.get_orders_by_statuses(['yuborilgan', 'qabul_qilingan'])
     if not orders:
-        await message.answer("Hozircha buyurtmalar yo'q.")
+        await message.answer("Hozircha faol buyurtmalar yo'q.")
         return
     lines = []
     for o in orders:
