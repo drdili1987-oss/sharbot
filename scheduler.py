@@ -1,16 +1,20 @@
 import asyncio
 import logging
 import re
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 from config import ADMIN_ID, XODIM_ID
 import database as db
 
 # Setup logging
 logger = logging.getLogger("scheduler")
 
+# O'zbekiston vaqti (UTC+5)
+UZT = timezone(timedelta(hours=5))
+
 async def send_tomorrow_notifications(bot):
     logger.info("Running send_tomorrow_notifications job...")
-    tomorrow = date.today() + timedelta(days=1)
+    uzt_now = datetime.now(UZT)
+    tomorrow = (uzt_now + timedelta(days=1)).date()
 
     # Fetch all active pending orders
     orders = await db.get_orders_by_statuses(['yuborilgan', 'qabul_qilingan'])
@@ -120,8 +124,8 @@ async def send_tomorrow_notifications(bot):
 async def daily_scheduler(bot):
     logger.info("Daily reminder scheduler started.")
     while True:
-        now = datetime.now()
-        # Har kuni soat 19:00 da ishga tushadi
+        now = datetime.now(UZT)
+        # Har kuni soat 19:00 da ishga tushadi (O'zbekiston vaqti bo'yicha)
         target = now.replace(hour=19, minute=0, second=0, microsecond=0)
         if now >= target:
             # 19:00 o'tib ketgan bo'lsa, ertaga uchun rejalashtiriladi
