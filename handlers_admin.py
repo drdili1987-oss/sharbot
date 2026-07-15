@@ -3,6 +3,8 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
+import re
+from datetime import datetime, date
 import database as db
 import keyboards as kb
 from states import YangiZakaz, AddSharchiForm, TolovForm, OylikHisobotForm, AdminQarzForm
@@ -234,6 +236,37 @@ async def list_orders(message: Message):
     if not orders:
         await message.answer("Hozircha faol buyurtmalar yo'q.")
         return
+        
+    def parse_order_date(o):
+        sana_str = o.get("sana", "").strip()
+        sana_str = re.sub(r'[\s\-/]+', '.', sana_str)
+        parsed_date = None
+        for fmt in ("%d.%m.%Y", "%d.%m.%y", "%Y.%m.%d", "%d.%m"):
+            try:
+                if fmt == "%d.%m":
+                    parsed_date = datetime.strptime(sana_str, fmt).date().replace(year=date.today().year)
+                else:
+                    parsed_date = datetime.strptime(sana_str, fmt).date()
+                break
+            except ValueError:
+                continue
+        if parsed_date is None:
+            parts = [int(p) for p in re.findall(r'\d+', sana_str)]
+            if len(parts) == 3:
+                if parts[0] > 1000:
+                    parsed_date = date(parts[0], parts[1], parts[2])
+                else:
+                    year = parts[2]
+                    parsed_date = date(year + 2000 if year < 100 else year, parts[1], parts[0])
+            elif len(parts) == 2:
+                parsed_date = date(date.today().year, parts[1], parts[0])
+            else:
+                parsed_date = date.min # Xato bo'lsa eng oxiriga / boshiga o'tadi
+        return parsed_date or date.min
+
+    # Sort in descending order (kelajakdagi uzoqroq sanalar tepada, yaqin sanalar pastda chiqishi uchun)
+    orders.sort(key=parse_order_date, reverse=True)
+
     lines = []
     for o in orders:
         worker = await db.get_worker_by_id(o["worker_id"])
